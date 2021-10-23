@@ -6,12 +6,17 @@ import ProgressBar from "./ProgressBar.js";
 const UploadForm =() =>{
     const defaultFileName = "이미지 파일을 업로드 해주세요";
     const [file, setFile] = useState(null);
+    const [docSrc, setDocSrc] = useState(null);
+    
     const [fileName, setFileName] = useState(defaultFileName);
     const [percent, setPercent] = useState(0);
     const imageSelectHandler = (event) => {
-                const docfile = event.target.files[0];
-                setFile(docfile);
-                setFileName(docfile.name);
+                const documentFile = event.target.files[0];
+                setFile(documentFile);
+                setFileName(documentFile.name);
+                const fileReader = new FileReader();
+                fileReader.readAsDataURL(documentFile);
+                fileReader.onload = e => setDocSrc(e.target.result);
             };
     const onSubmit = async (e) =>{
         e.preventDefault();
@@ -29,21 +34,24 @@ const UploadForm =() =>{
             setTimeout(()=>{
               setPercent(0);
               setFileName(defaultFileName);
+              setDocSrc(null);
             },3000);
         }catch(err){
             toast.error(err.message);
             setPercent(0);
             setFileName(defaultFileName);
+            setDocSrc(null);
             console.error(err);
         }
     };      
     return (
       <div>
         <form onSubmit={onSubmit}>
+          <img src={docSrc} className ={`image-preview ${docSrc && "image-preview-show"}`}/>
           <ProgressBar percent ={percent}/>
           <div className="file-dropper">
             {fileName}
-            <input id="file" type="file" onChange={imageSelectHandler} />
+            <input id="file" type="file" accept="image/*, jpg" onChange={imageSelectHandler} />
           </div>
           <button
             type="submit"
