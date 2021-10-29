@@ -1,9 +1,13 @@
-import React,{ useState} from "react";
+import React,{ useState, useContext} from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "./UploadForm.css";
 import ProgressBar from "./ProgressBar.js";
+import { DocContext } from "../context/DocContext";
+
+
 const UploadForm =() =>{
+    const [docs, setDocs] = useContext(DocContext);
     const defaultFileName = "이미지 파일을 업로드 해주세요";
     const [file, setFile] = useState(null);
     const [docSrc, setDocSrc] = useState(null);
@@ -30,6 +34,7 @@ const UploadForm =() =>{
                 }
               });
             console.log({res});
+            setDocs([...docs,res.data]);
             toast.success("파일 업로드 성공");
             setTimeout(()=>{
               setPercent(0);

@@ -1,13 +1,8 @@
-import React,{useEffect, useState} from 'react';
-import axios from "axios";
+import React, { useContext } from "react";
+import {DocContext} from "../context/DocContext";
+
 const DocList = () => {
-  const [docs, setDocs] = useState([]);
-  useEffect(()=>{
-    axios
-      .get("/docs")
-      .then((result) => setDocs(result.data))
-      .catch((err) => console.error(err));
-  },[]);
+  const [docs] = useContext(DocContext);
   const docList = docs.map((doc) =>
   <img style ={{width:"100%"}} 
   key = {doc.key}
