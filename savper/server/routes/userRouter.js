@@ -3,6 +3,8 @@ const userRouter = Router();
 const User = require("../models/User");
 const {hash,compare} = require("bcryptjs");
 const mongoose = require("mongoose");
+const Doc = require("../models/Doc");//const Doc = mongoose.model("Doc");
+
 
 userRouter.post("/register",async(req,res)=>{
     try{
@@ -76,6 +78,17 @@ userRouter.get("/me", (req, res) => {
       name: req.user.name,
       userId: req.user._id,
     });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+userRouter.get("/me/docs", async (req, res) => {
+  try {
+    if (!req.user) throw new Error("권한이 없습니다.");
+    const docs = await Doc.find({ "user._id": req.user.id });
+    res.json({ docs });
   } catch (err) {
     console.log(err);
     res.status(400).json({ message: err.message });
