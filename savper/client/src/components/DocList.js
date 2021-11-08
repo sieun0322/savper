@@ -4,7 +4,9 @@ import {DocContext} from "../context/DocContext";
 const DocList = () => {
   const [docs] = useContext(DocContext);
   const docList = docs.map((doc) =>
-  <img style ={{width:"100%"}} 
+  <img 
+  alt=""
+  style ={{width:"100%"}} 
   key = {doc.key}
   src={`http://localhost:5000/uploads/${doc.key}`}/>)
   return (
