@@ -7,7 +7,7 @@ import { DocContext } from "../context/DocContext";
 
 
 const UploadForm =() =>{
-    const [docs, setDocs] = useContext(DocContext);
+    const { docs, setDocs, myDocs, setMyDocs } = useContext(DocContext);
     const defaultFileName = "이미지 파일을 업로드 해주세요";
     const [file, setFile] = useState(null);
     const [docSrc, setDocSrc] = useState(null);
@@ -37,8 +37,8 @@ const UploadForm =() =>{
                   setPercent(Math.round((100*e.loaded)/e.total));
                 }
               });
-            console.log({res});
-            setDocs([...docs,res.data]);
+            if(isPublic)setDocs([...docs,res.data]);
+            else setMyDocs([...myDocs, res.data]);
             toast.success("파일 업로드 성공");
             setTimeout(()=>{
               setPercent(0);
