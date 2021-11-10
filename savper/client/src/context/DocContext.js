@@ -17,12 +17,17 @@ export const DocProvider= (prop)=>{
     }, []);
     useEffect(() => {
       if(me){
-      axios
-        .get("/users/me/docs")
-        .then((result) => setMyDocs(result.data))
-        .catch((err) => console.error(err));
+        setTimeout(()=>{
+          axios
+          .get("/users/me/docs")
+          .then((result) => setMyDocs(result.data))
+          .catch((err) => console.error(err));
+        },0);
+      }else{
+        setMyDocs([]);
+        setIsPublic(true);
       }
-    }, [me]);  
+    }, [me]);//me가 바뀔때마다 실행
     return (
       <DocContext.Provider
         value={{ docs, setDocs, myDocs, setMyDocs, isPublic, setIsPublic }}
