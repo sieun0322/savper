@@ -2,17 +2,21 @@ import React, { useContext, useState } from "react";
 import {DocContext} from "../context/DocContext";
 import { AuthContext } from "../context/AuthContext";
 import "./DocList.css";
+import { Link } from "react-router-dom";
 
 const DocList = () => {
   const { docs, myDocs, isPublic, setIsPublic } = useContext(DocContext);
   const [me] = useContext(AuthContext);
 
-  const docList = (isPublic?docs:myDocs).map((doc) =>(
-  <img 
-  alt=""
-  key = {doc.key}
-  src={`http://localhost:5000/uploads/${doc.key}`}
-  />));
+  const docList = (isPublic?docs:myDocs).map((doc) => (
+    <Link key={doc.key} to={`/docs/${doc._id}`}>
+      <img
+        alt=""
+        key={doc.key}
+        src={`http://localhost:5000/uploads/${doc.key}`}
+      />
+    </Link>
+  ));
   return (
     <div>
       <h3 style={{ display: "inline-block", marginRight: 10 }}>

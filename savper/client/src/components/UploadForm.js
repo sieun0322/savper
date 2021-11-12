@@ -37,8 +37,8 @@ const UploadForm =() =>{
                   setPercent(Math.round((100*e.loaded)/e.total));
                 }
               });
-            if(isPublic)setDocs([...docs,res.data]);
-            else setMyDocs([...myDocs, res.data]);
+            if(isPublic){setDocs([...docs,res.data]);}
+            else {setMyDocs([...myDocs, res.data]);}
             toast.success("파일 업로드 성공");
             setTimeout(()=>{
               setPercent(0);
@@ -46,7 +46,7 @@ const UploadForm =() =>{
               setDocSrc(null);
             },3000);
         }catch(err){
-            toast.error(err.response.data.message);
+           // toast.error(err.response.data.message);
             setPercent(0);
             setFileName(defaultFileName);
             setDocSrc(null);
