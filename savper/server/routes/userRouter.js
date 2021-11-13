@@ -88,7 +88,7 @@ userRouter.get("/me/docs", async (req, res) => {
   try {
     if (!req.user) throw new Error("권한이 없습니다.");
     const docs = await Doc.find({ "user._id": req.user.id });
-    res.json({ docs });
+    res.json( docs);
   } catch (err) {
     console.log(err);
     res.status(400).json({ message: err.message });

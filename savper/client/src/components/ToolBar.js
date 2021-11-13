@@ -11,6 +11,7 @@ const ToolBar =() =>{
             await axios.patch("/users/logout");
             setMe();
             toast.success("로그아웃!");
+            
 
         }catch(err){
             console.error(err);

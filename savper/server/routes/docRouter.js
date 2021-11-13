@@ -64,7 +64,7 @@ docRouter.patch("/:docId/like", async (req, res) => {
       { $addToSet: { likes: req.user.id } },
       { new: true }
     );
-    res.json({doc});
+    res.json(doc);
   } catch (err) {
     console.error(err);
     res.status(400).json({ message: err.message });
@@ -82,7 +82,7 @@ docRouter.patch("/:docId/unlike", async (req, res) => {
       {$pull:{likes:req.user.id}},
       { new: true }
     );
-    res.json({ doc });
+    res.json( doc );
   } catch (err) {
     console.error(err);
     res.status(400).json({ message: err.message });
