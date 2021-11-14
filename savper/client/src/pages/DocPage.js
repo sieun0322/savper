@@ -41,8 +41,8 @@ const deleteHandler = async () => {
       `/docs/${docId}`
     );
   toast.success(result.data.message);
-  setDocs(docs.filter(doc=>doc.id !==docId));
-  setMyDocs(myDocs.filter(doc=>doc.id !==docId));
+  setDocs(docs.filter((doc) => doc._id !== docId));
+  setMyDocs(myDocs.filter((doc) => doc._id !== docId));
   navigate("/");
   }catch(err){
     toast.error(err.message);
