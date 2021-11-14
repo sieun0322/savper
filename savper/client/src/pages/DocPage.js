@@ -5,9 +5,11 @@ import axios from "axios";
 import { DocContext } from "../context/DocContext";
 import { AuthContext } from "../context/AuthContext";
 import { useParams } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 
 const DocPage = () => {
+  const navigate = useNavigate();
   const { docId } = useParams();
   const {docs, myDocs, setDocs, setMyDocs} = useContext(DocContext);
   const [me] = useContext(AuthContext);
@@ -31,6 +33,21 @@ const onSubmit = async()=>{
   
   setHasLiked(!hasLiked);
 };
+const deleteHandler = async () => {
+
+  try{
+    if(!window.confirm("해당 이미지를 삭제하시겠습니까?")) return false;
+    const result = await axios.delete(
+      `/docs/${docId}`
+    );
+  toast.success(result.data.message);
+  setDocs(docs.filter(doc=>doc.id !==docId));
+  setMyDocs(myDocs.filter(doc=>doc.id !==docId));
+  navigate("/");
+  }catch(err){
+    toast.error(err.message);
+  }
+};
   return (
     <div>
       <h3>{doc.key}</h3>
@@ -39,8 +56,20 @@ const onSubmit = async()=>{
         alt={docId}
         src={`http://localhost:5000/uploads/${doc.key}`}
       ></img>
-      <span>likes{doc.likes.length}</span>
-      <button style={{float:"right"}} onClick={onSubmit}>{hasLiked?"unlike":"like"}</button>
+      <span>
+        likes{doc.likes.length}
+      </span>
+      {me && doc.user._id === me.userId && (
+        <button
+          style={{ float: "right", marginLeft: 10 }}
+          onClick={deleteHandler}
+        >
+          삭제
+        </button>
+      )}
+      <button style={{ float: "right" }} onClick={onSubmit}>
+        {hasLiked ? "unlike" : "like"}
+      </button>
     </div>
   );
 };

@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
           axios.get("/users/me",{headers:{sessionid:sessionId}})
           .then((result) =>
           setMe({name:result.data.name, 
-            useId:result.data.userId,
+            userId:result.data.userId,
             sessionId:result.data.sessionId,
         })).catch(()=>{
             localStorage.removeItem("sessionId");
