@@ -8,27 +8,42 @@ import { DocContext } from "../context/DocContext";
 
 const UploadForm =() =>{
     const { docs, setDocs, myDocs, setMyDocs } = useContext(DocContext);
-    const defaultFileName = "이미지 파일을 업로드 해주세요";
-    const [file, setFile] = useState(null);
-    const [docSrc, setDocSrc] = useState(null);
-    
-    const [fileName, setFileName] = useState(defaultFileName);
+    const [files, setFiles] = useState(null);
+
+    const[previews, setPreviews] = useState([]);
     const [percent, setPercent] = useState(0);
     const [isPublic, setIsPublic] = useState(true);
 
 
-    const imageSelectHandler = (event) => {
-                const documentFile = event.target.files[0];
-                setFile(documentFile);
-                setFileName(documentFile.name);
-                const fileReader = new FileReader();
-                fileReader.readAsDataURL(documentFile);
-                fileReader.onload = e => setDocSrc(e.target.result);
+    const docSelectHandler = async (event) => {
+                const documentFiles = event.target.files;
+                setFiles(documentFiles);
+
+                const docPreviews = await Promise.all(
+                  [...documentFiles].map((documentFile) => {
+                    return new Promise((resolve, reject) => {
+                      try {
+                        const fileReader = new FileReader();
+                        fileReader.readAsDataURL(documentFile);
+                        fileReader.onload = (e) =>
+                          resolve({
+                            docSrc: e.target.result,
+                            fileName: documentFile.name,
+                          });
+                      } catch (err) {
+                        reject(err);
+                      }
+                    });
+                  })
+                );
+                console.log(docPreviews);
+setPreviews( docPreviews );
+                
             };
     const onSubmit = async (e) =>{
         e.preventDefault();
         const formData = new FormData();
-        formData.append("doc",file);
+        for(let file of files) formData.append("doc", file);
         formData.append("public", isPublic);
         try{
             const res = await axios.post("/docs",formData,{
@@ -37,38 +52,55 @@ const UploadForm =() =>{
                   setPercent(Math.round((100*e.loaded)/e.total));
                 }
               });
-            if(isPublic){setDocs([...docs,res.data]);}
-            else {setMyDocs([...myDocs, res.data]);}
+            if(isPublic){setDocs([...docs,...res.data]);}
+            else {setMyDocs([...myDocs, ...res.data]);}
             toast.success("파일 업로드 성공");
             setTimeout(()=>{
               setPercent(0);
-              setFileName(defaultFileName);
-              setDocSrc(null);
+              setPreviews([]);
             },3000);
         }catch(err){
            // toast.error(err.response.data.message);
             setPercent(0);
-            setFileName(defaultFileName);
-            setDocSrc(null);
+            setPreviews([]);
             console.error(err);
         }
-    };      
+    };   
+    const previewDocs = previews.map((preview, index) => (
+      <img
+        src={preview.docSrc}
+        alt=""
+        key={index}
+        style={{
+          width: 200,
+          height: 200,
+          objectFit: "cover",
+        }}
+        className={`doc-preview ${preview.docSrc && "doc-preview-show"}`}
+      />
+    ));   
+    const fileName = previews.length ===0?"이미지 파일을 업로드 해주세요":previews.reduce((previous, current)=>previous+`${current.fileName}, `,"");
+
     return (
       <div>
         <form onSubmit={onSubmit}>
-          <img
-            alt=""
-            src={docSrc}
-            className={`image-preview ${docSrc && "image-preview-show"}`}
-          />
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+            }}
+          >
+            {previewDocs}
+          </div>
           <ProgressBar percent={percent} />
           <div className="file-dropper">
             {fileName}
             <input
               id="file"
               type="file"
+              multiple
               accept="image/*, jpg"
-              onChange={imageSelectHandler}
+              onChange={docSelectHandler}
             />
           </div>
           {!isPublic}

@@ -7,22 +7,27 @@ const {promisify} = require("util");
 const fileUnlink = promisify(fs.unlink);
 const mongoose = require("mongoose");
 
-docRouter.post("/", upload.single("doc"), async (req, res) => {
+docRouter.post("/", upload.array("doc",5), async (req, res) => {
 
   console.log(req.file); // 저장될 때까지 기다림
   try {
     if(!req.user) throw new Error("권한이 없습니다.");
-      const doc = await new Doc({
-        user: {
-          _id: req.user.id,
-          name: req.user.name,
-          username: req.user.username,
-        },
-        public:req.body.public,
-        key: req.file.filename,
-        originalFileName: req.file.originalname,
-      }).save();
-      res.json(doc);
+    const docs = await Promise.all(
+     req.files.map(async file =>{
+        const doc = await new Doc({
+          user: {
+            _id: req.user.id,
+            name: req.user.name,
+            username: req.user.username,
+          },
+          public: req.body.public,
+          key: file.filename,
+          originalFileName: file.originalname,
+        }).save();
+        return doc;
+     })
+  );
+  res.json(docs);
   } catch (err) {
     console.log(err);
     res.status(400).json({ message: err.message });

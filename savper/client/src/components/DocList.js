@@ -23,9 +23,9 @@ const DocList = () => {
         DocList({(isPublic ? "공개" : "개인") + "사진"})
       </h3>
       {me && (
-        <buttom onClick={() => setIsPublic(!isPublic)}>
+        <button onClick={() => setIsPublic(!isPublic)}>
           {(isPublic ? "개인" : "공개") + "사진 보기"}
-        </buttom>
+        </button>
       )}
       <div className="doc-list-container">{docList}</div>
     </div>
