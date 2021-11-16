@@ -7,14 +7,15 @@ export const DocProvider= (prop)=>{
     const [docs, setDocs] = useState([]);
     const [myDocs, setMyDocs] = useState([]);
     const [isPublic, setIsPublic] = useState(true);
+    const [docUrl,setDocUrl]=useState("/docs");
     const [me] =useContext(AuthContext);
-
     useEffect(() => {
       axios
-        .get("/docs")
-        .then((result) => setDocs(result.data))
+        .get(docUrl)
+        .then((result) => setDocs(prevData=>[...prevData,...result.data]))
         .catch((err) => console.error(err));
-    }, []);
+    }, [docUrl]);
+    
     useEffect(() => {
       if(me){
         setTimeout(()=>{
@@ -28,9 +29,22 @@ export const DocProvider= (prop)=>{
         setIsPublic(true);
       }
     }, [me]);//me가 바뀔때마다 실행
+    const loaderMoreDocs=()=>{
+      if(docs.length ===0) return;
+      const lastDocId = docs[docs.length - 1]._id;
+      setDocUrl(`/docs?lastid=${lastDocId}`);
+    }
     return (
       <DocContext.Provider
-        value={{ docs, setDocs, myDocs, setMyDocs, isPublic, setIsPublic }}
+        value={{
+          docs,
+          setDocs,
+          myDocs,
+          setMyDocs,
+          isPublic,
+          setIsPublic,
+          loaderMoreDocs,
+        }}
       >
         {prop.children}
       </DocContext.Provider>

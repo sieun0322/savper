@@ -35,9 +35,16 @@ docRouter.post("/", upload.array("doc",5), async (req, res) => {
 
 });
 docRouter.get("/", async (req, res) => {
-  //public 이미지만 제공
-  const docs = await Doc.find({public:true});
+  //offset cursor
+  try{
+  const{lastid} = req.query;
+  if(lastid && !mongoose.isvalidOnjectId(lastid)) throw new Error("invalid lastid");
+  const docs = await Doc.find(lastid?{public:true,_id:{$lt:lastid},}:{public:true}).sort({_id:-1}).limit(20);
   res.json(docs);
+} catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+}
 });
 docRouter.delete("/:docId", async (req, res) => {
   //유저 권한 확인

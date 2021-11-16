@@ -5,7 +5,8 @@ import "./DocList.css";
 import { Link } from "react-router-dom";
 
 const DocList = () => {
-  const { docs, myDocs, isPublic, setIsPublic } = useContext(DocContext);
+  const { docs, myDocs, isPublic, setIsPublic, loaderMoreDocs } =
+    useContext(DocContext);
   const [me] = useContext(AuthContext);
 
   const docList = (isPublic?docs:myDocs).map((doc) => (
@@ -28,6 +29,7 @@ const DocList = () => {
         </button>
       )}
       <div className="doc-list-container">{docList}</div>
+      <button onClick={loaderMoreDocs}>NEXT docs</button>
     </div>
   );
 };
