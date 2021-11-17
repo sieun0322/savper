@@ -37,8 +37,10 @@ docRouter.post("/", upload.array("doc",5), async (req, res) => {
 docRouter.get("/", async (req, res) => {
   //offset cursor
   try{
-  const{lastid} = req.query;
-  if(lastid && !mongoose.isvalidOnjectId(lastid)) throw new Error("invalid lastid");
+  const {lastid} = req.query;
+  console.log(lastid);
+  if (lastid && !mongoose.isValidObjectId(lastid))
+    throw new Error("invalid lastid");
   const docs = await Doc.find(lastid?{public:true,_id:{$lt:lastid},}:{public:true}).sort({_id:-1}).limit(20);
   res.json(docs);
 } catch (err) {
