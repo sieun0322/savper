@@ -11,7 +11,8 @@ import { useNavigate } from "react-router-dom";
 const DocPage = () => {
   const navigate = useNavigate();
   const { docId } = useParams();
-  const {docs, myDocs, setDocs, setMyDocs} = useContext(DocContext);
+  const { docs, myDocs, setDocs, setMyDocs} =
+    useContext(DocContext);
   const [me] = useContext(AuthContext);
 
   const [hasLiked, setHasLiked] = useState(false);
@@ -56,9 +57,7 @@ const deleteHandler = async () => {
         alt={docId}
         src={`http://localhost:5000/uploads/${doc.key}`}
       ></img>
-      <span>
-        likes{doc.likes.length}
-      </span>
+      <span>likes{doc.likes.length}</span>
       {me && doc.user._id === me.userId && (
         <button
           style={{ float: "right", marginLeft: 10 }}
@@ -67,9 +66,11 @@ const deleteHandler = async () => {
           삭제
         </button>
       )}
-      <button style={{ float: "right" }} onClick={onSubmit}>
-        {hasLiked ? "unlike" : "like"}
-      </button>
+
+        <button style={{ float: "right" }} onClick={onSubmit}>
+          {hasLiked ? "unlike" : "like"}
+        </button>
+      
     </div>
   );
 };
