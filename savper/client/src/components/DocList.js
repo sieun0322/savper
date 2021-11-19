@@ -1,4 +1,4 @@
-import React, { useContext, useEffect,useRef } from "react";
+import React, { useContext, useEffect, useRef, useCallback } from "react";
 import {DocContext} from "../context/DocContext";
 import { AuthContext } from "../context/AuthContext";
 import "./DocList.css";
@@ -10,12 +10,20 @@ const DocList = () => {
     myDocs,
     isPublic,
     setIsPublic,
-    loaderMoreDocs,
     docLoading,
     docError,
+    setDocUrl,
   } = useContext(DocContext);
   const [me] = useContext(AuthContext);
   const elementRef = useRef(null);
+  
+    const loaderMoreDocs = useCallback(() => {
+      if (docs.length === 0 || docLoading) return;
+
+      const lastDocId = docs[docs.length - 1]._id;
+
+      setDocUrl(`${isPublic ? "" : "/users/me"}/docs?lastid=${lastDocId}`);
+    }, [docs, docLoading, isPublic, setDocUrl]);
 
 useEffect(() => {
   if (!elementRef.current) return;
@@ -26,25 +34,11 @@ useEffect(() => {
   observer.observe(elementRef.current);
   return () => observer.disconnect();
 }, [loaderMoreDocs]);
-  const docList = isPublic
-    ? docs.map((doc, index) => (
+  const docList =docs.map((doc, index) => (
         <Link
           key={doc.key}
           to={`/docs/${doc._id}`}
           ref={index + 1 === docs.length ? elementRef : undefined}
-        >
-          <img
-            alt=""
-            key={doc.key}
-            src={`http://localhost:5000/uploads/${doc.key}`}
-          />
-        </Link>
-      ))
-    : myDocs.map((doc, index) => (
-        <Link
-          key={doc.key}
-          to={`/docs/${doc._id}`}
-          ref={index + 5 === myDocs.length ? elementRef : undefined}
         >
           <img
             alt=""

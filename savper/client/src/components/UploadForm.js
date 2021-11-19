@@ -7,7 +7,7 @@ import { DocContext } from "../context/DocContext";
 
 
 const UploadForm =() =>{
-    const { docs, setDocs, myDocs, setMyDocs } = useContext(DocContext);
+    const { setDocs, setMyDocs } = useContext(DocContext);
     const [files, setFiles] = useState(null);
 
     const[previews, setPreviews] = useState([]);
@@ -52,8 +52,9 @@ setPreviews( docPreviews );
                   setPercent(Math.round((100*e.loaded)/e.total));
                 }
               });
-            if(isPublic){setDocs([...docs,...res.data]);}
-            else {setMyDocs([...myDocs, ...res.data]);}
+            if(isPublic) 
+            setDocs((prevData) => [...res.data, ...prevData]);
+            setMyDocs((prevData) => [...res.data, ...prevData]);
             toast.success("파일 업로드 성공");
             setTimeout(()=>{
               setPercent(0);

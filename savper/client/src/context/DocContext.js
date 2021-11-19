@@ -1,4 +1,10 @@
-import React, { createContext, useState, useEffect, useContext,useCallback } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+} from "react";
 import axios from "axios";
 import { AuthContext } from "./AuthContext";
 
@@ -11,14 +17,27 @@ export const DocProvider= (prop)=>{
     const [docError, setDocError] = useState(false);
     const [docUrl,setDocUrl]=useState("/docs");
     const [me] =useContext(AuthContext);
+    const pastDocUrlRef = useRef();
+
     useEffect(() => {
+      if (pastDocUrlRef.current === docUrl) return;
       setDocLoading(true);
       axios
         .get(docUrl)
-        .then((result) => setDocs((prevData) => [...prevData, ...result.data]))
-        .catch((err) => {console.error(err); setDocError(err);})
-        .finally(() => setDocLoading(false));
-    }, [docUrl]);
+        .then((result) =>
+          isPublic
+            ? setDocs((prevData) => [...prevData, ...result.data])
+            : setMyDocs((prevData) => [...prevData, ...result.data])
+        )
+        .catch((err) => {
+          console.error(err);
+          setDocError(err);
+        })
+        .finally(() => {
+          setDocLoading(false);
+          pastDocUrlRef.current = docUrl;
+        });
+    }, [docUrl, isPublic]);
     
     useEffect(() => {
       if(me){
@@ -33,25 +52,19 @@ export const DocProvider= (prop)=>{
         setIsPublic(true);
       }
     }, [me]);//me가 바뀔때마다 실행
-    
-    const lastDocId = docs.length>0?docs[docs.length - 1]._id:null;
-    const loaderMoreDocs = useCallback(() => {
-      if (docLoading || !lastDocId) return;
-      setDocUrl(`/docs?lastid=${lastDocId}`);
-    }, [lastDocId, docLoading]);
+
 
     return (
       <DocContext.Provider
         value={{
-          docs,
+          docs: isPublic ? docs : myDocs,
           setDocs,
-          myDocs,
           setMyDocs,
           isPublic,
           setIsPublic,
-          loaderMoreDocs,
           docLoading,
           docError,
+          setDocUrl,
         }}
       >
         {prop.children}

@@ -86,8 +86,13 @@ userRouter.get("/me", (req, res) => {
 
 userRouter.get("/me/docs", async (req, res) => {
   try {
+    const { lastid } = req.query;
+    console.log(lastid);
+    if (lastid && !mongoose.isValidObjectId(lastid))
+      throw new Error("invalid lastid");
+  
     if (!req.user) throw new Error("권한이 없습니다.");
-    const docs = await Doc.find({ "user._id": req.user.id });
+    const docs = await Doc.find(lastid?{"user._id": req.user.id ,_id:{$lt:lastid},}:{"user._id": req.user.id }).sort({_id:-1}).limit(30);
     res.json( docs);
   } catch (err) {
     console.log(err);

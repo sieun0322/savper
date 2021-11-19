@@ -11,14 +11,12 @@ import { useNavigate } from "react-router-dom";
 const DocPage = () => {
   const navigate = useNavigate();
   const { docId } = useParams();
-  const { docs, myDocs, setDocs, setMyDocs} =
+  const { docs, setDocs, setMyDocs} =
     useContext(DocContext);
   const [me] = useContext(AuthContext);
 
   const [hasLiked, setHasLiked] = useState(false);
-  const doc =
-    docs.find((doc) => doc._id === docId) ||
-    myDocs.find((doc) => doc._id === docId);
+  const doc = docs.find((doc) => doc._id === docId);
   useEffect(()=>{
     if(me && doc && doc.likes.includes(me.userId)) setHasLiked(true);
   },[me,doc]);
@@ -29,8 +27,9 @@ const updateDoc = (docs, doc) =>
   );
 const onSubmit = async()=>{
   const result = await axios.patch(`/docs/${docId}/${hasLiked?"unlike":"like"}`);
-  if(result.data.public) setDocs(updateDoc(docs, result.data));
-  else setMyDocs(updateDoc(myDocs, result.data));
+  if(result.data.public) 
+  setDocs((prevDate) => updateDoc(prevDate, result.data));
+  setMyDocs((prevDate) => updateDoc(prevDate, result.data));
   
   setHasLiked(!hasLiked);
 };
@@ -42,8 +41,8 @@ const deleteHandler = async () => {
       `/docs/${docId}`
     );
   toast.success(result.data.message);
-  setDocs(docs.filter((doc) => doc._id !== docId));
-  setMyDocs(myDocs.filter((doc) => doc._id !== docId));
+  setDocs((prevDate) => prevDate.filter((doc) => doc._id !== docId));
+  setMyDocs((prevDate) => prevDate.filter((doc) => doc._id !== docId));
   navigate("/");
   }catch(err){
     toast.error(err.message);
