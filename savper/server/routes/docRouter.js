@@ -48,19 +48,19 @@ docRouter.get("/", async (req, res) => {
     res.status(400).json({ message: err.message });
 }
 });
-docRouter.delete("/:docId", async (req, res) => {
-  //유저 권한 확인
-  //사진 삭제
+
+docRouter.get("/:docId", async (req, res) => {
   try {
     console.log(req.params);
-    if(!req.user) throw new Error("권한이 없습니다.");
-    if(!mongoose.isValidObjectId(req.params.docId)) throw new Error("올바르지 않은 이미지ID 입니다.");
-     
-    const doc = await Doc.findOneAndDelete({ _id: req.params.docId });
-    if(!doc) return res.json({ message: "이미 삭제된 이미지입니다." });
-    await fileUnlink(`./uploads/${doc.key}`);
-    console.log(doc);
-    res.json({message:"요청하신 이미지가 삭제 되었습니다."});
+    const { docId } = req.params;
+    if (!mongoose.isValidObjectId(docId))
+      throw new Error("올바르지 않은 이미지ID 입니다.");
+
+    const doc = await Doc.findOne({ _id: docId });
+    if (!doc) return res.json({ message: "해당 이미지는 존재 하지 않습니다." });
+    if (!doc.public && (!req.user || req.user.id !== doc.user.id))
+      throw new Error("권한이 없습니다.");
+    res.json(doc);
   } catch (err) {
     console.error(err);
     res.status(400).json({ message: err.message });
