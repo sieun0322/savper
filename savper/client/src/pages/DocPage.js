@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect,useRef } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import CustomInput from "../components/CustomInput";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -18,27 +18,32 @@ const DocPage = () => {
   const [doc, setDoc] = useState();
   const [error, setError] = useState(false);
   
-  const docRef = useRef();
  useEffect(() => {
-   docRef.current = docs.find((doc) => doc._id === docId);
+   const doc = docs.find((doc) => doc._id === docId);
+   if(doc) setDoc(doc);
  }, [docs, docId]);
-    useEffect(()=>{
-      if(docRef.current) setDoc(docRef.current);
-      else{
-        axios.get(`/docs/${docId}`)
-        .then(({data})=>{setDoc(data); setError(false);})
-        .catch((err)=>{setError(true);toast.error(err.response.data.message);});
-      }
-  },[docId]);
+    useEffect(() => {
+      if (doc && doc._id === docId) return;
+      axios
+        .get(`/docs/${docId}`)
+        .then(({ data }) => {
+          setDoc(data);
+          setError(false);
+        })
+        .catch((err) => {
+          setError(true);
+          toast.error(err.response.data.message);
+        });
+    }, [docId, doc]);
 
-  useEffect(()=>{
-    if(me && doc && doc.likes.includes(me.userId)) setHasLiked(true);
-  },[me,doc]);
- if (error) return <h3>Error...</h3>; 
+  useEffect(() => {
+    if (me && doc && doc.likes.includes(me.userId)) setHasLiked(true);
+  }, [me, doc]);
+if (error) return <h3>Error...</h3>; 
 else if(!doc) return <h3>Loading</h3>;
 const updateDoc = (docs, doc) =>
   [...docs.filter((doc) => doc._id !== docId), doc].sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    (a, b) => {if(b._id <a._id) return 1; else return -1;}
   );
 const onSubmit = async()=>{
   const result = await axios.patch(`/docs/${docId}/${hasLiked?"unlike":"like"}`);
