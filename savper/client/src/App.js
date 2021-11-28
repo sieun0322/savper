@@ -10,6 +10,7 @@ import MainPage from "./pages/MainPage";
 import DocPage from "./pages/DocPage";
 import { Routes, Route } from "react-router-dom";
 import ToolBar from "./components/ToolBar";
+
 const App = () => {
   
   return (
